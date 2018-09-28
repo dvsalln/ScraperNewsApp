@@ -1,40 +1,47 @@
-// Require our dependencies
+// Our Dependencies
 var express = require("express");
-var mongoose = require("mongoose");
 var exphbs = require("express-handlebars");
 var bodyParser = require("body-parser");
-// Set up our port to be either the host's designated port, or 3000
-var PORT = process.env.PORT || 3000;
+var logger = require("morgan");
+var mongoose = require("mongoose");
 
-// Instantiate our Express App
+// Using es6 js promise
+mongoose.Promise = Promise;
+
+// Initialize Express
 var app = express();
+var PORT = process.env.PORT || 8000;
 
-// Require our routes
-var routes = require("./routes");
+// Use morgan and body parser with our app
+app.use(logger("dev"));
+app.use(bodyParser.urlencoded({extended: false}));
 
-// Designate our public folder as a static directory
+// allow the handlesbars engine to be in our toolset
+app.engine('handlebars', exphbs({defaultLayout: 'main'}));
+// Now set handlebars engine
+app.set('view engine', 'handlebars');
+
+// Make public a static dir to serve our static files
 app.use(express.static("public"));
 
-// Connect Handlebars to our Express app
-app.engine("handlebars", exphbs({ defaultLayout: "main" }));
-app.set("view engine", "handlebars");
+// Mongoose (orm) connects to our mongo db and allows us to have access to the MongoDB commands for easy CRUD 
+mongoose.connect("mongodb://heroku_f9jqr8qs:efv0pqfn8qdqhqcv7k6fr8fhg@ds161039.mlab.com:61039/heroku_f9jqr8qs");
+var db = mongoose.connection;
 
-// Use bodyParser in our app
-app.use(bodyParser.urlencoded({ extended: false }));
-app.use(bodyParser.json());
+// if any errors than console errors
+db.on("error", function (error) {
+  console.log("Mongoose Error: ", error);
+});
 
-// Have every request go through our route middleware
-app.use(routes);
+// display a console message when mongoose has a conn to the db
+db.once("open", function () {
+  console.log("Mongoose connection successful.");
+});
 
-// If deployed, use the deployed database. Otherwise use the local mongoHeadlines database
-var MONGODB_URI = process.env.MONGODB_URI || "mongodb://localhost/mongoHeadlines";
+// Require the routes in our controllers js file
+require("./controllers/articlesController.js")(app);
 
-// Set mongoose to leverage built in JavaScript ES6 Promises
-// Connect to the Mongo DB
-mongoose.Promise = Promise;
-mongoose.connect(MONGODB_URI);
-
-// Listen on the port
-app.listen(PORT, function() {
-  console.log("Listening on port: " + PORT);
+//Listen on PORT 8000 & notify us.
+app.listen(PORT, function () {
+  console.log("App running on port 8 THOUSAND!!!!!!!!");
 });
