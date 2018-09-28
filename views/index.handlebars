@@ -1,0 +1,27 @@
+<nav>
+    <form action="/articles/saved" method="GET">
+        <input type="submit" class="btn-danger" value="GO TO SAVED!">
+    </form>
+</nav>
+<br>
+{{#each data}}
+    <div class="container-fluid eachstory">
+        <div class="row">
+            <h1>{{this.title}}</h2>
+        </div>
+        <div class="row">
+            <h3>{{this.abstract}}</h3>
+        </div>
+        <div class="row">
+            <h4>
+                <a href="http://www.nhl.com{{this.link}}">Learn More Here!</a>
+            </h4>
+        </div>
+        <div class="row">
+            <form action="/articles/save/{{this.id}}" method="POST" class="save">
+                <input type="submit" class="btn-danger" value=" Save Article! "></input>
+            </form>
+        </div>
+    </div>
+    <br>
+{{/each}}
